@@ -1,7 +1,8 @@
 .DS_Store
-
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
 .Renviron
+googleauthr-auth-key.json
+googlecloudstorager-auth-key.json

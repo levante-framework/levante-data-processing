@@ -60,10 +60,11 @@ corpus_items <- rlang::exec(airtable, !!!corpus_item_table) |>
 # list of available corpus IDs
 list_corpora <- \() unique(corpus_items$corpus_id)
 
+# gcs_proj <- "hs-levante-admin-dev"
 # given df to upload (each row is a corpus, columns corpus_file_name, task_dir, corpus)
 # save corpus as csv in bucket
-upload_corpora <- \(upload_items, bucket = "corpora-airtable") {
-  pwalk(upload_items, \(corpus_file_name, task_dir, corpus) {
+upload_corpora <- \(upload_items, bucket = "levante-corpora-airtable") {
+  pwalk(upload_items, \(task_dir, corpus_file_name, corpus) {
     corpus_file <- glue("{task_dir}/shared/corpora/{corpus_file_name}.csv")
     gcs_upload(file = corpus,
                name = corpus_file,

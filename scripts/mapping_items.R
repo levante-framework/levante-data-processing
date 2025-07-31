@@ -7,25 +7,34 @@ library(stringr)
 library(rairtable)
 library(redivis)
 
-# connect to 
-item_table <- airtable(table = "pilot-item", base = "appIk9XNTZZns1F1F")
-pilot_items <- read_airtable(item_table) |> as_tibble()
+mapping_table <- list(table = "pilot-item-mapping", base = "appIk9XNTZZns1F1F")
 
-trial_items <- pilot_items |>
-  select(item_uid, item_task, group, entry, trials, chance) |>
-  mutate(trials = map(trials, \(tt) str_split(tt, ",") |> unlist()) |>
-           map_chr(jsonlite::toJSON)) |>
-  # mutate(trials = map_chr(trials, \(tt) paste(tt, collapse = ",")) |> map_chr(jsonlite::toJSON)) |>
+export_fields <- c(
+  "item_uid",
+  "task_id",
+  "corpus_trial_type",
+  "item",
+  "answer",
+  "distractors"
+)
+
+# fetch records in corpus_item table
+mapping_items <- rlang::exec(airtable, !!!mapping_table) |>
+  read_airtable(fields = export_fields) |>
+  as_tibble() |>
+  select(!!!export_fields) |>
+  mutate(across(where(is.list), as.character)) |>
   arrange(item_uid)
+  # mutate(item = replace_na(item, ""))
 
 # connect to item_metadata redivis dataset, create next version if needed
 item_metadata <- redivis$organization("levante")$dataset("item_metadata:czjv")
 item_metadata <- item_metadata$create_next_version(if_not_exists = TRUE)
 
 # connect to survey_items table, upload new survey_items df
-trial_table <- item_metadata$table("trial_items")
-trial_table$update(upload_merge_strategy = "replace")
-trial_table$upload("trial_items")$create(trial_items, if_not_exists = FALSE, rename_on_conflict = TRUE)
+mapping_table <- item_metadata$table("mapping_items")
+mapping_table$update(upload_merge_strategy = "replace")
+mapping_table$upload("mapping_items")$create(mapping_items, if_not_exists = FALSE, rename_on_conflict = TRUE)
 
 # test that reading back gives right result
 # table_items <- trial_table$to_tibble() |>
