@@ -12,7 +12,7 @@ scoring_table <- list(table = "Scoring",
 export_fields <- c(
   "item_task",
   "task_id",
-  "redivis_datasets",
+  "datasets",
   "model_set",
   "subset",
   "itemtype",
@@ -27,10 +27,11 @@ scoring_df <- rlang::exec(airtable, !!!scoring_table) |>
   select(!!!export_fields) |>
   mutate(across(where(\(v) is.list(v) & all(map_int(v, length) == 1)), as.character))
 
-scoring <- scoring_df |> unnest(redivis_datasets) |> rename(dataset = redivis_datasets)
+scoring <- scoring_df |> unnest(datasets) |> rename(dataset = datasets) |>
+  mutate(dataset = str_replace_all(dataset, "-", "_"))
 
 # connect to item_metadata redivis dataset, create next version if needed
-scoring_dataset <- redivis$organization("levante")$dataset("scoring:e97h")
+scoring_dataset <- redivis$organization("levante")$dataset("levante_metadata_scoring:e97h")
 scoring_dataset <- scoring_dataset$create_next_version(if_not_exists = TRUE)
 
 # connect to survey_items table, upload new survey_items df
