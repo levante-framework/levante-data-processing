@@ -1,6 +1,7 @@
 library(dplyr)
 library(purrr)
 library(tidyr)
+library(stringr)
 library(rairtable)
 library(redivis)
 

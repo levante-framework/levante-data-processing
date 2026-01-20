@@ -20,3 +20,5 @@ codebook_df <- rlang::exec(airtable, !!!codebook_table) |>
   read_airtable(fields = export_fields) |>
   as_tibble() |>
   select(!!!export_fields)
+
+write_csv(codebook_df, "codebook.csv", na = "", col_names = FALSE)

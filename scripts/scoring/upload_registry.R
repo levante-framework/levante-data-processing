@@ -18,3 +18,6 @@ upload_registry_task <- \(regfiles, task) {
   task_files <- regfiles |> keep(\(rf) str_detect(rf$name, glue("^{task}/")))
   registry_table$add_files(files = task_files)
 }
+
+# delete in GUI first, no file delete API call
+upload_registry(regfiles)
