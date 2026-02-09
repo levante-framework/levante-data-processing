@@ -84,7 +84,7 @@ prep_task_lang_params <- \(item_task, mod_spec_fun) {
 }
 
 # example: new params for multigroup task
-# params_mrot <- prep_task_params("mrot", mod_spec_standard)
+# params_mg <- prep_task_params("mg", mod_spec_standard)
 
 # example: new params for by language task
 # params_vocab <- prep_task_lang_params("vocab", mod_spec_lang)
@@ -93,6 +93,7 @@ corpus_tasks <- list(
   "hf" = mod_spec_standard,
   "math" = mod_spec_standard,
   "matrix" = mod_spec_standard,
+  "mg" = mod_spec_standard,
   "mrot" = mod_spec_2pl,
   "sds" = mod_spec_2pl,
   "tom" = mod_spec_lang,
