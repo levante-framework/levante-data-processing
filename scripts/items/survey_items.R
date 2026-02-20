@@ -26,7 +26,7 @@ survey_coding <- imap(codesheets, get_coding)
 survey_items <- survey_coding |>
   bind_rows(.id = "survey_type") |>
   filter(!str_detect(variable_name, "Intro")) |>
-  mutate(survey_part = if_else(is.na(survey_part), survey_type, survey_part)) |>
+  mutate(survey_part = if_else(is.na(survey_part), "general", survey_part)) |>
   group_by(survey_type) |>
   mutate(variable_order = 1:n()) |>
   ungroup() |>
