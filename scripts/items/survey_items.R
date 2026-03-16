@@ -2,6 +2,8 @@
 # and redivis (dataset item_metadata, table survey_items)
 
 library(dplyr)
+library(purrr)
+library(stringr)
 library(redivis)
 library(googlesheets4)
 # googlesheets4::gs4_auth()
@@ -21,6 +23,16 @@ get_coding <- function(survey_sheet, survey_type) {
            reverse_coded, response_options)
 }
 survey_coding <- imap(codesheets, get_coding)
+
+# get any new items added in survey reduction
+codebook_reduced <- "10GGE1seZxFSjInavob8DQpTaRpB24mGw09kZ_Gs9f6g"
+reduced <- read_sheet(codebook_reduced, sheet = "Sheet1", na = c("", "NA")) |>
+  select(variable_name, contains("construct"), contains("survey_part"),
+         response_options) |>
+  anti_join(survey_coding$caregiver, by = "variable_name") |>
+  filter_out(variable_name %in% c("ChildSCS", "ChildJukes")) # ignore totals
+# add to caregiver coding
+survey_coding$caregiver <- survey_coding$caregiver |> bind_rows(reduced)
 
 # combine codesheets
 survey_items <- survey_coding |>
@@ -49,3 +61,4 @@ survey_table$upload("survey_items")$create(survey_items)
 
 # release new item_metadata dataset
 item_metadata$release()
+
