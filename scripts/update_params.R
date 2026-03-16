@@ -1,6 +1,7 @@
 library(rlevante)
 library(dplyr)
 library(tidyr)
+library(tibble)
 library(stringr)
 library(glue)
 library(forcats)
