@@ -3,7 +3,9 @@ library(purrr)
 library(stringr)
 library(glue)
 
-registry_table <- redivis$organization("levante")$dataset("levante-metadata-scoring:e97h", version = "next")$table("model_registry:rqwv")
+registry_dataset <- redivis$organization("levante")$dataset("levante-metadata-scoring:e97h")
+registry_dataset <- registry_dataset$create_next_version(if_not_exists = TRUE)
+registry_table <- registry_dataset$table("model_registry:rqwv")
 
 regdir <- "02_scoring_outputs/model_registry"
 regfiles <- list(name = list.files(regdir, recursive = TRUE),
@@ -20,4 +22,7 @@ upload_registry_task <- \(regfiles, task) {
 }
 
 # delete in GUI first, no file delete API call
-upload_registry(regfiles)
+# upload_registry(regfiles)
+# upload_registry_task(regfiles, "pa")
+
+registry_dataset$release()
