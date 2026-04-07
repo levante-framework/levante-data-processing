@@ -25,9 +25,10 @@ get_coding <- function(survey_sheet, survey_type) {
 survey_coding <- imap(codesheets, get_coding)
 
 # get any new items added in survey reduction
+# https://docs.google.com/spreadsheets/d/10GGE1seZxFSjInavob8DQpTaRpB24mGw09kZ_Gs9f6g
 codebook_reduced <- "10GGE1seZxFSjInavob8DQpTaRpB24mGw09kZ_Gs9f6g"
 reduced <- read_sheet(codebook_reduced, sheet = "Sheet1", na = c("", "NA")) |>
-  select(variable_name, contains("construct"), contains("survey_part"),
+  select(variable_name, contains("construct"), question_type, contains("survey_part"),
          response_options) |>
   anti_join(survey_coding$caregiver, by = "variable_name") |>
   filter_out(variable_name %in% c("ChildSCS", "ChildJukes")) # ignore totals
@@ -37,7 +38,8 @@ survey_coding$caregiver <- survey_coding$caregiver |> bind_rows(reduced)
 # combine codesheets
 survey_items <- survey_coding |>
   bind_rows(.id = "survey_type") |>
-  filter(!str_detect(variable_name, "Intro")) |>
+  # filter(str_detect(variable_name, "Intro")) |>
+  filter(!is.na(question_type)) |>
   mutate(survey_part = if_else(is.na(survey_part), "general", survey_part)) |>
   group_by(survey_type) |>
   mutate(variable_order = 1:n()) |>
