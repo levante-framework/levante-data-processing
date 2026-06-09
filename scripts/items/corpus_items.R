@@ -1,4 +1,4 @@
-# sync between airtable (corpus_item table)
+# sync between airtable (item table)
 # and redivis (dataset item_metadata, table corpus_items)
 
 library(dplyr)
