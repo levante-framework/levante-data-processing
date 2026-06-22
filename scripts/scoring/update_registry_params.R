@@ -8,10 +8,12 @@ scoring_table <- scoring_models_table$to_tibble()
 
 registry_dir <- scoring_dataset$table("model_registry:rqwv")$to_directory()
 
-mod_basename <- spec[c("item_task", "itemtype", "nfact", "invariance")] |> purrr::discard(is.na) |> paste(collapse = "_")
+# mod_basename <- spec[c("item_task", "itemtype", "nfact", "invariance")] |> purrr::discard(is.na) |> paste(collapse = "_")
 scoring_specs <- scoring_table |>
   select(item_task, model_set, subset, itemtype, nfact, invariance) |> as.list() |> transpose()
 
+mod_filenames <- scoring_specs |>
+  map(rlevante:::model_spec_filename)
 scoring_mods <- scoring_specs |>
   # map(rlevante:::model_spec_filename)
   map(\(spec) rlevante:::get_model_record(spec, registry_dir))
@@ -19,7 +21,7 @@ scoring_mods <- scoring_specs |>
 mod_coefs <- \(mod_rec, item_sep = "-") {
   n_resp <- colSums(!is.na(mod_rec@data)) |>
     enframe(name = "item", value = "n_responses")
-  model_vals(mod_rec) |>
+  rlevante:::model_vals(mod_rec) |>
     as_tibble() |>
     filter(group != "GROUP", item != "GROUP") |>
     select(group, item, name, value) |>
@@ -36,15 +38,15 @@ mod_coefs <- \(mod_rec, item_sep = "-") {
 
 scoring_params <- map(scoring_mods, mod_coefs)
 
-mutate(registry_version = mod_row$redivis_source |> str_extract("(?<=:)v.*?$"),
-       itemtype = mod_spec$itemtype,
-       groups = list(mod_rec@group_names),
-       n_runs = length(mod_rec@runs),
-       file_id = mod_row$file_id,
-       added_at = mod_row$added_at)
+# mutate(registry_version = mod_row$redivis_source |> str_extract("(?<=:)v.*?$"),
+#        itemtype = mod_spec$itemtype,
+#        groups = list(mod_rec@group_names),
+#        n_runs = length(mod_rec@runs),
+#        file_id = mod_row$file_id,
+#        added_at = mod_row$added_at)
 
 scoring_table$params <- scoring_params
-scoring_params <- scoring_table |>
+scoring_params_tbl <- scoring_table |>
   unnest(params) |>
   select(task_id, item_task, item_uid, difficulty, discrimination = a1, n_responses,
          model_set, subset, itemtype, nfact, invariance) |>
@@ -52,7 +54,6 @@ scoring_params <- scoring_table |>
   distinct() |>
   arrange(item_uid)
 
-params_table <- registry_dataset$table("item_parameters:4cvk")
+params_table <- scoring_dataset$table("item_parameters:4cvk")
 params_table$update(upload_merge_strategy = "replace")
-params_table$upload("scoring_params")$create(scoring_params, if_not_exists = FALSE, rename_on_conflict = TRUE)
-
+params_table$upload("scoring_params")$create(scoring_params_tbl, if_not_exists = FALSE, rename_on_conflict = TRUE)

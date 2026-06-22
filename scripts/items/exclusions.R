@@ -7,7 +7,7 @@ library(rairtable)
 library(redivis)
 library(tidyr)
 
-# info for corpus_item table
+# info for exclusion table
 # https://airtable.com/appe2p0S3xk4DL2qc/tblnnFrYQfMOFhIF9/viwkKX2qgFMYg5J7Q
 corpus_item_table <- list(table = "exclusion",
                           base = "appe2p0S3xk4DL2qc")

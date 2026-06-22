@@ -23,6 +23,7 @@ upload_registry_task <- \(regfiles, task) {
 
 # delete in GUI first, no file delete API call
 # upload_registry(regfiles)
-# upload_registry_task(regfiles, "pa")
+# upload_registry_task(regfiles, "swr")
+# upload_registry_task(regfiles, "hf")
 
 registry_dataset$release()
